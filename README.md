@@ -14,6 +14,8 @@ Tools:
 - gulp
 - grunt
 - phantomjs
+- chrome
+- chromedriver
 
 ## Usage
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 
 function shutdown {
@@ -17,6 +18,7 @@ trap shutdown SIGTERM SIGINT
 
 if [[ $# -gt 0 ]] ; then
   eval "$*"
+  kill -s SIGTERM $NODE_PID
 fi
 
 wait $NODE_PID

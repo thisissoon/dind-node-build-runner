@@ -78,7 +78,7 @@ RUN wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.stor
 COPY config.json /opt/selenium/config.json
 
 #
-# Chrome Launch Script Modication
+# Chrome Launch Script Modification
 #
 COPY chrome_launcher.sh /opt/google/chrome/google-chrome
 RUN chmod +x /opt/google/chrome/google-chrome
@@ -101,7 +101,4 @@ RUN mkdir -p /usr/src/app
 VOLUME /usr/src/app
 WORKDIR /usr/src/app
 
-COPY entry_point.sh /opt/bin/entry_point.sh
-RUN chmod +x /opt/bin/entry_point.sh
-
-ENTRYPOINT ["/opt/bin/entry_point.sh"]
+CMD ["gulp"]

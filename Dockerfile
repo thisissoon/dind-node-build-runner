@@ -2,6 +2,10 @@ FROM gitlab/dind
 
 MAINTAINER mcasimir
 
+ENV CHROME_DRIVER_VERSION 2.21
+ENV NODE_JS_VERSION 6
+ENV PHANTOM_JS_VERSION 2.1.1
+
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
@@ -9,96 +13,61 @@ ENV SCREEN_WIDTH 1360
 ENV SCREEN_HEIGHT 1020
 ENV SCREEN_DEPTH 24
 ENV DISPLAY :99.0
-
-RUN apt-get update
-RUN apt-get install -y build-essential chrpath libssl-dev libxft-dev
-RUN apt-get install unzip
-
-#
-# VNC and Xvfb
-#
-RUN apt-get update -qqy \
-  && apt-get -qqy install \
-    xvfb \
-  && rm -rf /var/lib/apt/lists/*
-
-#
-# GIT
-#
-RUN apt-get install -y git
-
-#
-# Node JS
-#
-RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-RUN apt-get install -y nodejs
 ENV NPM_CONFIG_LOGLEVEL error
+ENV PATH /usr/local/sonar-runner-2.4/bin:$PATH
 
-#
-# Java
-#
-RUN apt-get install -y openjdk-7-jre
+COPY config.json /tmp/selenium-config.json
+COPY chrome_launcher.sh /tmp/chrome_launcher.sh
 
-#
-# Phantom Js
-#
-RUN apt-get install -y libfreetype6 libfreetype6-dev libfontconfig1 libfontconfig1-dev
-RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
-RUN tar xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2
-
-RUN mv phantomjs-2.1.1-linux-x86_64 /usr/local/share
-RUN ln -sf /usr/local/share/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin
-
-#
-# Google Chrome
-#
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+RUN \
+  wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$PHANTOM_JS_VERSION-linux-x86_64.tar.bz2 \
+  && apt-get update -qqy \
+  && apt-get install -y software-properties-common python-software-properties \
+  && add-apt-repository ppa:webupd8team/java -y \
+  && curl -sL https://deb.nodesource.com/setup_$NODE_JS_VERSION.x | sudo -E bash - \
+  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
   && apt-get update -qqy \
-  && apt-get -qqy install \
+  && echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections \
+  && apt-get install -y \
+    build-essential \
+    chrpath \
+    libssl-dev \
+    libxft-dev \
+    git \
+    nodejs \
+    oracle-java8-installer \
+    libfreetype6 \
+    libfreetype6-dev \
+    libfontconfig1 \
+    libfontconfig1-dev \
+    unzip \
+    xvfb \
     google-chrome-stable \
-  && rm /etc/apt/sources.list.d/google-chrome.list \
-  && rm -rf /var/lib/apt/lists/*
-
-#
-# Chrome webdriver
-#
-ENV CHROME_DRIVER_VERSION 2.21
-RUN wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \
-  && rm -rf /opt/selenium/chromedriver \
+  && mv /tmp/chrome_launcher.sh /opt/google/chrome/google-chrome \
+  && chmod +x /opt/google/chrome/google-chrome \
+  && tar xvjf phantomjs-$PHANTOM_JS_VERSION-linux-x86_64.tar.bz2 \
+  && mv phantomjs-$PHANTOM_JS_VERSION-linux-x86_64 /usr/local/share \
+  && ln -sf /usr/local/share/phantomjs-$PHANTOM_JS_VERSION-linux-x86_64/bin/phantomjs /usr/local/bin \
+  && wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \
   && unzip /tmp/chromedriver_linux64.zip -d /opt/selenium \
-  && rm /tmp/chromedriver_linux64.zip \
   && mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
   && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
-  && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
+  && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver \
+  && mv /tmp/selenium-config.json /opt/selenium/config.json \
+  && mkdir -p /usr/src/app \
+  && npm i -g gulp grunt bower selenium-standalone@latest \
+  && selenium-standalone install \
+  && wget http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip \
+  && unzip sonar-runner-dist-2.4.zip \
+  && mv sonar-runner-2.4 /usr/local/sonar-runner-2.4 \
+  && rm phantomjs-$PHANTOM_JS_VERSION-linux-x86_64.tar.bz2 \
+    /tmp/chromedriver_linux64.zip \
+    /etc/apt/sources.list.d/google-chrome.list \
+    sonar-runner-dist-2.4.zip \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get clean
 
-#
-# Selenium Configuration
-#
-COPY config.json /opt/selenium/config.json
-
-#
-# Chrome Launch Script Modification
-#
-COPY chrome_launcher.sh /opt/google/chrome/google-chrome
-RUN chmod +x /opt/google/chrome/google-chrome
-
-#
-# Gulp
-#
-RUN npm i -g gulp
-RUN npm i -g grunt
-RUN npm i -g bower
-
-#
-# Selenium Standalone
-#
-RUN npm install selenium-standalone@latest -g
-RUN selenium-standalone install
-
-RUN mkdir -p /usr/src/app
-
-VOLUME /usr/src/app
 WORKDIR /usr/src/app
 
 CMD ["gulp"]

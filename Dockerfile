@@ -30,7 +30,7 @@ RUN apt-get install -y git
 #
 # Node JS
 #
-RUN curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 RUN apt-get install -y nodejs
 ENV NPM_CONFIG_LOGLEVEL error
 

@@ -22,10 +22,12 @@ RUN \
   wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$PHANTOM_JS_VERSION-linux-x86_64.tar.bz2 \
   && apt-get update -qqy \
   && apt-get install -y software-properties-common python-software-properties \
+  && add-apt-repository ppa:webupd8team/java -y \
   && curl -sL https://deb.nodesource.com/setup_$NODE_JS_VERSION.x | sudo -E bash - \
   && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
   && apt-get update -qqy \
+  && echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections \
   && apt-get install -y \
     build-essential \
     chrpath \
@@ -33,6 +35,7 @@ RUN \
     libxft-dev \
     git \
     nodejs \
+    oracle-java8-installer \
     libfreetype6 \
     libfreetype6-dev \
     libfontconfig1 \

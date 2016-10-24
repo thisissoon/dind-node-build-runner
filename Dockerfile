@@ -14,7 +14,6 @@ ENV SCREEN_HEIGHT 1020
 ENV SCREEN_DEPTH 24
 ENV DISPLAY :99.0
 ENV NPM_CONFIG_LOGLEVEL error
-ENV PATH /usr/local/sonar-runner-2.4/bin:$PATH
 
 COPY config.json /tmp/selenium-config.json
 COPY chrome_launcher.sh /tmp/chrome_launcher.sh
@@ -23,12 +22,10 @@ RUN \
   wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$PHANTOM_JS_VERSION-linux-x86_64.tar.bz2 \
   && apt-get update -qqy \
   && apt-get install -y software-properties-common python-software-properties \
-  && add-apt-repository ppa:webupd8team/java -y \
   && curl -sL https://deb.nodesource.com/setup_$NODE_JS_VERSION.x | sudo -E bash - \
   && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
   && apt-get update -qqy \
-  && echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections \
   && apt-get install -y \
     build-essential \
     chrpath \
@@ -36,7 +33,6 @@ RUN \
     libxft-dev \
     git \
     nodejs \
-    oracle-java8-installer \
     libfreetype6 \
     libfreetype6-dev \
     libfontconfig1 \
@@ -58,13 +54,9 @@ RUN \
   && mkdir -p /usr/src/app \
   && npm i -g gulp grunt bower selenium-standalone@latest \
   && selenium-standalone install \
-  && wget http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip \
-  && unzip sonar-runner-dist-2.4.zip \
-  && mv sonar-runner-2.4 /usr/local/sonar-runner-2.4 \
   && rm phantomjs-$PHANTOM_JS_VERSION-linux-x86_64.tar.bz2 \
     /tmp/chromedriver_linux64.zip \
     /etc/apt/sources.list.d/google-chrome.list \
-    sonar-runner-dist-2.4.zip \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get clean
 

@@ -2,9 +2,8 @@ FROM gitlab/dind
 
 MAINTAINER soon
 
-ENV CHROME_DRIVER_VERSION 2.21
+ENV CHROME_DRIVER_VERSION 2.27
 ENV NODE_JS_VERSION 7
-ENV PHANTOM_JS_VERSION 2.1.1
 
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 ENV DEBIAN_FRONTEND noninteractive
@@ -19,8 +18,7 @@ COPY config.json /tmp/selenium-config.json
 COPY chrome_launcher.sh /tmp/chrome_launcher.sh
 
 RUN \
-  wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$PHANTOM_JS_VERSION-linux-x86_64.tar.bz2 \
-  && apt-get update -qqy \
+  apt-get update -qqy \
   && apt-get install -y software-properties-common python-software-properties \
   && add-apt-repository ppa:webupd8team/java -y \
   && curl -sL https://deb.nodesource.com/setup_$NODE_JS_VERSION.x | sudo -E bash - \
@@ -45,9 +43,6 @@ RUN \
     google-chrome-stable \
   && mv /tmp/chrome_launcher.sh /opt/google/chrome/google-chrome \
   && chmod +x /opt/google/chrome/google-chrome \
-  && tar xvjf phantomjs-$PHANTOM_JS_VERSION-linux-x86_64.tar.bz2 \
-  && mv phantomjs-$PHANTOM_JS_VERSION-linux-x86_64 /usr/local/share \
-  && ln -sf /usr/local/share/phantomjs-$PHANTOM_JS_VERSION-linux-x86_64/bin/phantomjs /usr/local/bin \
   && wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \
   && unzip /tmp/chromedriver_linux64.zip -d /opt/selenium \
   && mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
@@ -55,14 +50,13 @@ RUN \
   && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver \
   && mv /tmp/selenium-config.json /opt/selenium/config.json \
   && mkdir -p /usr/src/app \
-  && npm i -g gulp grunt bower selenium-standalone@latest \
+  && npm i -g selenium-standalone@latest protractor@latest\
   && selenium-standalone install \
-  && rm phantomjs-$PHANTOM_JS_VERSION-linux-x86_64.tar.bz2 \
-    /tmp/chromedriver_linux64.zip \
+  && rm /tmp/chromedriver_linux64.zip \
     /etc/apt/sources.list.d/google-chrome.list \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get clean
 
 WORKDIR /usr/src/app
 
-CMD ["gulp"]
+CMD ["sh"]

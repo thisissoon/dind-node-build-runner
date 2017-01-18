@@ -24,6 +24,8 @@ RUN \
   && curl -sL https://deb.nodesource.com/setup_$NODE_JS_VERSION.x | sudo -E bash - \
   && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - \
+  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list \
   && apt-get update -qqy \
   && echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections \
   && apt-get install -y \
@@ -32,6 +34,7 @@ RUN \
     libssl-dev \
     libxft-dev \
     nodejs \
+    yarn \
     oracle-java8-installer \
     unzip \
     xvfb \
@@ -45,7 +48,7 @@ RUN \
   && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver \
   && mv /tmp/selenium-config.json /opt/selenium/config.json \
   && mkdir -p /usr/src/app \
-  && npm i -g selenium-standalone@latest protractor@latest yarn@latest\
+  && npm i -g selenium-standalone@latest protractor@latest\
   && selenium-standalone install \
   && rm /tmp/chromedriver_linux64.zip \
     /etc/apt/sources.list.d/google-chrome.list \

@@ -31,13 +31,8 @@ RUN \
     chrpath \
     libssl-dev \
     libxft-dev \
-    git \
     nodejs \
     oracle-java8-installer \
-    libfreetype6 \
-    libfreetype6-dev \
-    libfontconfig1 \
-    libfontconfig1-dev \
     unzip \
     xvfb \
     google-chrome-stable \
@@ -50,7 +45,7 @@ RUN \
   && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver \
   && mv /tmp/selenium-config.json /opt/selenium/config.json \
   && mkdir -p /usr/src/app \
-  && npm i -g selenium-standalone@latest protractor@latest\
+  && npm i -g selenium-standalone@latest protractor@latest yarn@latest\
   && selenium-standalone install \
   && rm /tmp/chromedriver_linux64.zip \
     /etc/apt/sources.list.d/google-chrome.list \

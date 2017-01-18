@@ -5,14 +5,10 @@ js tools and docker in docker.
 
 Tools:
 
-- git
 - docker
 - docker-compose
 - node
 - npm
-- bower
-- gulp
-- grunt
 - phantomjs
 - chrome
 - chromedriver
@@ -20,5 +16,5 @@ Tools:
 ## Usage
 
 ```
-docker run --privileged mcasimir/dind-node-build-runner
+docker run --privileged soon/dind-node-build-runner
 ```

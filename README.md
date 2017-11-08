@@ -18,3 +18,12 @@ Tools:
 ```
 docker run --privileged soon/dind-node-build-runner
 ```
+
+## Build
+
+To build different node and chrome versions you can pass these as arguments at
+build time.
+
+```
+docker build -t soon/dind-node-build-runner:8 --build-arg NODE_VERSION=8.x --build-arg CHROME_DRIVER_VERSION=2.33 .
+```

@@ -2,17 +2,17 @@ FROM gitlab/dind
 
 MAINTAINER soon
 
-ENV CHROME_DRIVER_VERSION 2.27
-ENV NODE_JS_VERSION 7
+ARG CHROME_DRIVER_VERSION=2.33
+ARG NODE_VERSION=7.x
 
-ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
-ENV DEBIAN_FRONTEND noninteractive
-ENV DEBCONF_NONINTERACTIVE_SEEN true
-ENV SCREEN_WIDTH 1360
-ENV SCREEN_HEIGHT 1020
-ENV SCREEN_DEPTH 24
-ENV DISPLAY :99.0
-ENV NPM_CONFIG_LOGLEVEL error
+ENV DBUS_SESSION_BUS_ADDRESS=/dev/null \
+  DEBIAN_FRONTEND=noninteractive \
+  DEBCONF_NONINTERACTIVE_SEEN=true \
+  SCREEN_WIDTH=1360 \
+  SCREEN_HEIGHT=1020 \
+  SCREEN_DEPTH=24 \
+  DISPLAY=:99.0 \
+  NPM_CONFIG_LOGLEVEL=error
 
 COPY config.json /tmp/selenium-config.json
 COPY chrome_launcher.sh /tmp/chrome_launcher.sh
@@ -21,7 +21,7 @@ RUN \
   apt-get update -qqy \
   && apt-get install -y software-properties-common python-software-properties \
   && add-apt-repository ppa:webupd8team/java -y \
-  && curl -sL https://deb.nodesource.com/setup_$NODE_JS_VERSION.x | sudo -E bash - \
+  && curl -sL https://deb.nodesource.com/setup_$NODE_VERSION | sudo -E bash - \
   && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
   && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - \
